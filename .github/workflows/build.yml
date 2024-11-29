@@ -1,0 +1,42 @@
+name: Build and Deploy Project
+
+on:
+  push:
+    branches:
+      - main  # Trigger workflow saat ada perubahan di branch main
+  pull_request:
+    branches:
+      - main  # Trigger saat ada PR ke branch main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run project.py
+      run: python project.py
+      id: run_project
+
+    - name: Build Docker container
+      run: |
+        docker build -t myproject .
+      id: build_container
+
+    - name: Save output as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: project-output
+        path: output/  # Path file output yang ingin disimpan, sesuaikan dengan file output kamu
